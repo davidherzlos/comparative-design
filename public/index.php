@@ -6,8 +6,9 @@
 // to consume asynchronously those apis.
 require __DIR__ . '/../vendor/autoload.php';
 
-use OpenChat\Router;
 use OpenChat\App;
+use OpenChat\Router;
 
-$app = new App(Router::load());
-echo json_encode($app->dispatch($_SERVER['REQUEST_URI']));
+
+$app = App::instance(new Router());
+$app->start();

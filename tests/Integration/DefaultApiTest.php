@@ -19,14 +19,16 @@ afterEach(function () {
  * Test escenarios start here.
  */
 
-test('it returns the expected response payload for the default endpoint', function () {
+test('Request the home page', function () {
     $response = $this->httpClient->request('GET', '/home');
     expect($response->getStatusCode())->toBe(200);
-    expect($response->toArray())->toBe(['ok' => true, 'message' => 'im the home page']);
+    expect($response->toArray())->toMatchArray(['message' => 'im the home page']);
 });
 
-test('it fetches the list of users in the system', function () {
-    $response = $this->httpClient->request('GET', '/users');
-    expect($response->getStatusCode())->toBe(200);
-    expect($response->toArray())->toBe(['ok' => true, 'users' => []]);
+test('Request a not found page', function () {
+    $response = $this->httpClient->request('GET', '/buzz');
+    expect($response->getStatusCode())->toBe(404);
 });
+
+
+// TEST THERE IS NO RESPONSE

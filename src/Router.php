@@ -7,27 +7,23 @@ class Router {
     public $routes;
 
     function __construct() {
-        $this->routes = [];
+        $this->routes = ['GET' => [], 'POST' => []];
     }
 
-    public static function load() {
-        $router = new self();
-        require __DIR__ . '/../config/routes.php';
-        return $router;
+    public function add($method, $key, $handler) {
+        $this->routes[$method][$key] = $handler;
     }
 
-    public function add($key, $callback) {
-        $this->routes[$key] = $callback;
+    public function count() {
+        return count($this->routes['GET']) + count($this->routes['POST']);
     }
 
-    public function getHandler($key) {
-        if (empty($this->routes[$key])) {
-            return function () {
-                return [];
-            };
+    public function get($method, $key) {
+        if (empty($this->routes[$method][$key])) {
+            return null;
         }
 
-        return $this->routes[$key];
+        return $this->routes[$method][$key];
     }
 
 }
