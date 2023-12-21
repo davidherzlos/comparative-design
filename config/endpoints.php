@@ -3,10 +3,19 @@
 /**
  * Default endpoint, don't remove unless you dont want it anymore.
  */
-$app->registerEndpoint('GET', '/home', fn() => ['ok' => true, 'message' => 'im the home page']);
+$app->registerEndpoint('GET', '/', function () {
+    return [
+        'statusCode' => 200,
+        'data' => [
+            'message' => 'home page'
+            ]
+        ];
+});
+
+$app->registerEndpoint('GET', '/about', 'DefaultApi::about');
 
 /**
  * User custom endpoints.
  */
 
-$app->registerEndpoint('GET', '/users', fn() => ['ok' => true, 'users' => []]);
+$app->registerEndpoint('POST', '/users', 'UserApi::create_user');

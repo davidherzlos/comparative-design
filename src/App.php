@@ -4,8 +4,6 @@ namespace OpenChat;
 
 class App {
 
-    private $responseCode = 200;
-
     function __construct($router) {
         $this->router = $router;
     }
@@ -16,19 +14,29 @@ class App {
 
     public function dispatch($method, $uri = 'home') {
         $handler = $this->router->get($method, trim($uri, '/'));
-        if (!is_callable($handler)) {
-            $this->responseCode = 404;
-            return ['ok' => false, 'message' => 'page not found'];
+
+        if (is_string($handler)) {
+            $handler = '\\OpenChat\\UseCase\\'.$handler;
+            list($class, $method) = explode('::', $handler);
+            if (method_exists($class, $method)) {
+                $instance = new $class();
+                return $instance->$method();
+            }
         }
 
-        return call_user_func($handler);
+        if (is_callable($handler)) {
+            return call_user_func($handler);
+        }
+
+        return ['statusCode' => 404, 'data' => ['message' => 'page not found']];
     }
 
     public function start() {
         $response = $this->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+        $statusCode = !empty($response['statusCode']) ? $response['statusCode'] : 200;
         header('Content-Type: application/json; charset=utf-8');
-        http_response_code($this->responseCode);
-        echo json_encode($response);
+        http_response_code($statusCode);
+        echo json_encode($response['data']);
     }
 
     public static function instance($router) {

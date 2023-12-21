@@ -19,10 +19,16 @@ afterEach(function () {
  * Test escenarios start here.
  */
 
-test('Request the home page', function () {
-    $response = $this->httpClient->request('GET', '/home');
+ test('Request the home page', function () {
+    $response = $this->httpClient->request('GET', '/');
     expect($response->getStatusCode())->toBe(200);
-    expect($response->toArray())->toMatchArray(['message' => 'im the home page']);
+    expect($response->toArray())->toBe(['message' => 'home page']);
+});
+
+test('Request the about page', function () {
+    $response = $this->httpClient->request('GET', '/about');
+    expect($response->getStatusCode())->toBe(200);
+    expect($response->toArray())->toBe(['message' => 'about page']);
 });
 
 test('Request a not found page', function () {
