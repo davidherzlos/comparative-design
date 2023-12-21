@@ -53,7 +53,3 @@ describe('App should', function () {
     });
 
 });
-// Suena atractivo inspeccionar los objetos en los tests mediante mocks.
-// Pero no veo como es que es util mockear como llame el metodo y que resultado obtuve.
-// Eso es algo bueno de ver en los videos y el libro.
-// Estoy entrando en el mock hell, creo.

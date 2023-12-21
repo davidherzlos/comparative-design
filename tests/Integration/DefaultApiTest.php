@@ -36,5 +36,3 @@ test('Request a not found page', function () {
     expect($response->getStatusCode())->toBe(404);
 });
 
-
-// TEST THERE IS NO RESPONSE
