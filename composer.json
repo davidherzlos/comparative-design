@@ -1,7 +1,8 @@
 {
     "autoload": {
         "psr-4": {
-            "OpenChat\\": "src/"
+            "OpenChat\\": "src/",
+            "Tests\\": "tests/"
         }
     },
     "require-dev": {
