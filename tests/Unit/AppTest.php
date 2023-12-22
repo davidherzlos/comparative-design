@@ -1,55 +1,72 @@
 <?php
 
 use OpenChat\Router;
-use OpenChat\UseCase\DefaultApi;
+use OpenChat\Request;
 use OpenChat\App;
+use OpenChat\UseCase\DefaultApi;
+use OpenChat\UseCase\UsersApi;
 
 describe('App should', function () {
 
-    test('ask the Router to add the expected request handler ', function () {
+    test('message correctly the Router to add a new endpoint handler', function () {
         $router = Mockery::mock(Router::class);
         $router->shouldReceive('add')->withArgs(
             fn($arg1, $arg2, $arg3) => $arg1 == 'POST' && $arg2 == 'foo' && is_callable($arg3)
         );
-        $app = new App($router);
-        $app->registerEndpoint('POST', '/foo', fn() => ['foo' => 'bar']);
+        $app = new App($router, new Request());
+        $app->registerEndpointHandler('POST', '/foo', fn() => ['foo' => 'bar']);
         expect(true)->toBe(true); // Just to make Pest happy.
     });
 
-    test('ask the Router for the expected request handler', function () {
+    test('message correctly the Router to get a handler', function () {
         $router = Mockery::mock(Router::class);
         $router->shouldReceive('get')->with('GET', 'home');
-        $app = new App($router);
-        $app->dispatch('GET', '/home');
+        $app = new App($router, new Request());
+        $app->getEndpointHandler('GET', '/home');
         expect(true)->toBe(true); // Just to make Pest happy.
     });
 
-    test('dispatch a default response when handler is not found', function () {
+    test('get a closure when the Router returnes nothing as endpoint handler', function () {
         $router = Mockery::mock(Router::class);
-        $router->shouldReceive('get')->with('GET', 'fizz')->andReturn(null);
-        $app = new App($router);
-        expect($app->dispatch('GET', '/fizz'))->toBe(['statusCode' => 404, 'data' => ['message' => 'page not found']]);
+        $router->shouldReceive('get')->andReturn(null);
+        $app = new App($router, new Request());
+        expect($app->getEndpointHandler('GET', '/fizz'))->toBeCallable();
     });
 
-    test('dispatch a valid response when the handler found is a closure', function () {
+    test('get the same closure the Router returned as endpoint handler', function () {
         $router = Mockery::mock(Router::class);
-        $router->shouldReceive('get')->with('GET', 'fizz')->andReturn(fn() => ['statusCode' => 200, 'data' => ['foo' => 'bar']]);
-        $app = new App($router);
-        expect($app->dispatch('GET', '/fizz'))->toBe(['statusCode' => 200, 'data' => ['foo' => 'bar']]);
+        $router->shouldReceive('get')->andReturn(fn() => true);
+        $app = new App($router, new Request());
+        expect($app->getEndpointHandler('GET', '/fizz'))->toBeCallable();
     });
 
-    test('dispatch a valid response when the handler found is a method', function () {
+    test('get a method when the Router returns a valid signature as endpoint handler', function () {
         $router = Mockery::mock(Router::class);
-        $router->shouldReceive('get')->with('GET', 'fizz')->andReturn('DefaultApi::about');
-        $app = new App($router);
-        expect($app->dispatch('GET', '/fizz'))->toBe(['statusCode' => 200, 'data' => ['message' => 'about page']]);
+        $router->shouldReceive('get')->andReturn('DefaultApi::about');
+        $app = new App($router, new Request());
+        list($class, $method) = $app->getEndpointHandler('GET', '/fizz');
+        expect($class)->toHaveMethod($method);
     });
 
-    test('dispatch a default response when handler is not valid', function () {
+    test('get a closure when the Router returns an invalid signature as endpoint handler', function () {
         $router = Mockery::mock(Router::class);
-        $router->shouldReceive('get')->with('GET', 'fizz')->andReturn('MissingClass::method');
-        $app = new App($router);
-        expect($app->dispatch('GET', '/fizz'))->toBe(['statusCode' => 404, 'data' => ['message' => 'page not found']]);
+        $router->shouldReceive('get')->andReturn('InvalidClass::method');
+        $app = new App($router, new Request());
+        expect($app->getEndpointHandler('GET', '/fizz'))->toBeCallable();
+    });
+
+    test('get a closure when the Router returns a bad signature as endpoint handler', function () {
+        $router = Mockery::mock(Router::class);
+        $router->shouldReceive('get')->andReturn('InvalidValue');
+        $app = new App($router, new Request());
+        expect($app->getEndpointHandler('GET', '/fizz'))->toBeCallable();
+    });
+
+    test('get the correct payload from the Request object', function () {
+        $request = Mockery::mock(Request::class);
+        $request->shouldReceive('getPayload')->andReturn(['fizz' => 'buzz']);
+        $app = new App(new Router(), $request);
+        expect($app->payload())->toBe(['fizz' => 'buzz']);
     });
 
 });

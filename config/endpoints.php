@@ -3,7 +3,7 @@
 /**
  * Default endpoint, don't remove unless you dont want it anymore.
  */
-$app->registerEndpoint('GET', '/', function () {
+$app->registerEndpointHandler('GET', '/', function () {
     return [
         'statusCode' => 200,
         'data' => [
@@ -12,10 +12,10 @@ $app->registerEndpoint('GET', '/', function () {
         ];
 });
 
-$app->registerEndpoint('GET', '/about', 'DefaultApi::about');
+$app->registerEndpointHandler('GET', '/about', 'DefaultApi::about');
 
 /**
- * User custom endpoints.
+ * Custom UseCase endpoints.
  */
 
-$app->registerEndpoint('POST', '/users', 'UserApi::create_user');
+$app->registerEndpointHandler('POST', '/users', 'UsersApi::createUser');

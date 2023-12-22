@@ -32,7 +32,6 @@ test('Request the about page', function () {
 });
 
 test('Request a not found page', function () {
-    $response = $this->httpClient->request('GET', '/buzz');
+    $response = $this->httpClient->request('GET', '/fizz');
     expect($response->getStatusCode())->toBe(404);
 });
-
