@@ -66,7 +66,7 @@ class App {
 
     public static function instance($router, $request) {
         $app = new self($router, $request);
-        require __DIR__ . '/../config/endpoints.php';
+        require __DIR__ . '/../endpoints.php';
         return $app;
     }
 
