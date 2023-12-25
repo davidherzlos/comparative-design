@@ -12,8 +12,8 @@ describe('Request should', function () {
 
     test('return the request path', function () {
         $request = new Request();
-        $request->setPath(['fizz' => 'buzz']);
-        expect($request->getPath())->toBe(['fizz' => 'buzz']);
+        $request->setUri(['fizz' => 'buzz']);
+        expect($request->getUri())->toBe(['fizz' => 'buzz']);
     });
 
     test('return the request method', function () {

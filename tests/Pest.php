@@ -11,7 +11,7 @@
 |
 */
 
-uses(Tests\TestCase::class)->in('Integration');
+uses(Tests\TestCase::class)->in('Feature');
 
 /*
 |--------------------------------------------------------------------------
