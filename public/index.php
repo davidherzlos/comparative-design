@@ -6,5 +6,5 @@ use OpenChat\App;
 use OpenChat\Router;
 use OpenChat\Request;
 
-$app = App::instance(new Router(), new Request());
+$app = App::instance(new Router());
 $app->start();

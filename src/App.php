@@ -8,25 +8,24 @@ class App {
 
     private $router;
 
-    public static function instance($router, $request) {
-        $app = new self($router, $request);
+    public static function instance($router) {
+        $app = new self($router);
         require __DIR__ . '/../endpoints.php';
         return $app;
     }
 
-    function __construct($router, $request) {
+    function __construct($router) {
         $this->router = $router;
-        $this->request = $request;
     }
 
     public function registerEndpointHandler($method, $uri, $handler) {
         $this->router->add($method, $uri, $handler);
     }
 
-    public function dispatch() {
-        $handler = $this->router->getHandler($this->request);
+    public function dispatch($request) {
+        $handler = $this->router->getHandler($request);
         $callable = $this->getCallable($handler);
-        return $callable($this->request);
+        return $callable($request);
     }
 
     private function getCallable($handler) {
@@ -61,11 +60,11 @@ class App {
     }
 
     public function start() {
-        // TODO: test side effect.
-        $response = $this->dispatch();
-        $statusCode = !empty($response['statusCode']) ? $response['statusCode'] : 200;
+        $response = $this->dispatch(new Request());
+        if (!empty($response['statusCode'])) {
+            http_response_code($response['statusCode']);
+        }
         header('Content-Type: application/json; charset=utf-8');
-        http_response_code($statusCode);
         echo json_encode($response['data']);
     }
 
