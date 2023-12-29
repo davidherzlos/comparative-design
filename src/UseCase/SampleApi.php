@@ -5,7 +5,7 @@ use OpenChat\Request;
 
 class SampleApi {
 
-    public function home(Request $request) {
+    public function home(Request $request): array {
         return ['statusCode' => 200, 'data' => ['page' => 'home']];
     }
 

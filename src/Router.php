@@ -2,42 +2,72 @@
 
 namespace OpenChat;
 
-use OpenChat\Request;
+class Router implements \Countable {
 
-class Router {
-
-    public $routes;
+    public array $routes;
 
     function __construct() {
         $this->routes = ['GET' => [], 'POST' => []];
     }
 
-    public function add($method, $key, $handler) {
+    public function add(string $method, string $key, mixed $handler): void {
         $this->routes[$method][$this->cleanSlashes($key)] = $handler;
     }
 
-    private function cleanSlashes($token) {
-        return $token === '/' ? $token : trim($token, '/');
-    }
-
-    public function count() {
+    public function count(): int {
         return count($this->routes['GET']) + count($this->routes['POST']);
     }
 
-    public function getHandler(Request $request) {
-        if (empty($request->getUri())) {
-            return null;
-        }
+    public function get(string $method, string $key): callable|string|null {
+        return !empty($this->routes[$method][$this->cleanSlashes($key)])
+            ? $this->routes[$method][$this->cleanSlashes($key)]
+            : null;
+    }
 
-        $uri = $this->cleanSlashes($request->getUri());
+    public function getHandler(Request $request): callable {
+        $default = function () {
+            return ['statusCode' => 404, 'data' => ['message' => 'page not found']];
+        };
 
         $method = $request->getMethod();
+        $uri = $request->getUri();
 
-        if (empty($this->routes[$method][$uri])) {
-            return null;
+        if (empty($method) || empty($uri)) {
+            return $default;
         }
 
-        return $this->routes[$method][$uri];
+        $uri = $this->cleanSlashes($uri);
+        $handler = $this->get($method, $uri);
+
+        if (!$handler) {
+            return $default;
+        }
+
+        if (is_callable($handler)) {
+            return $handler;
+        }
+
+        $handler = $this->mapHandlerToCallable($handler);
+
+        if (empty($handler)) {
+            return $default;
+        }
+
+        return $handler;
+    }
+
+    private function cleanSlashes(string $token): string {
+        return $token === '/' ? $token : trim($token, '/');
+    }
+
+    private function mapHandlerToCallable(string $handler): array {
+        $methodPath = '\\OpenChat\\UseCase\\'.$handler;
+        $parts = explode('::', $methodPath);
+        if (count($parts) !== 2 || !method_exists($parts[0], $parts[1])) {
+            return [];
+        }
+
+        return [new $parts[0], $parts[1]];
     }
 
 }

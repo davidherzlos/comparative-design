@@ -3,9 +3,9 @@
 /**
  * Sample endpoints.
  */
-$app->registerEndpointHandler('GET', '/', 'SampleApi::home');
+$app->register('GET', '/', 'SampleApi::home');
 
 /**
  * Custom endpoints.
  */
-$app->registerEndpointHandler('POST', '/users', 'UsersApi::createUser');
+$app->register('POST', '/users', 'UsersApi::createUser');

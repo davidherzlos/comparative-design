@@ -1,4 +1,4 @@
-.vscode
+.fleet
 vendor
 composer.lock
 phpunit.xml
