@@ -24,7 +24,7 @@ class App {
         return $this->router->getHandler($request);
     }
 
-    public function dispatch(Request $request): array {
+    public function dispatch(Request $request): array|null {
         $callable = $this->getCallable($request);
         return $callable($request);
     }
